@@ -1,6 +1,6 @@
 <template>
   <tab-bar>
-    <tab-bar-item path="/home">
+    <tab-bar-item path="/home" :activeColor="'var(--color-high-text)'">
       <img src="~assets/img/tabbar/home.svg" alt="" slot="item-icon" />
       <img
         src="~assets/img/tabbar/home_active.svg"
@@ -9,7 +9,7 @@
       />
       <div slot="item-text">首页</div>
     </tab-bar-item>
-    <tab-bar-item path="/category">
+    <tab-bar-item path="/category" :activeColor="'var(--color-high-text)'">
       <img src="~assets/img/tabbar/category.svg" alt="" slot="item-icon" />
       <img
         src="~assets/img/tabbar/category_active.svg"
@@ -18,7 +18,7 @@
       />
       <div slot="item-text">分类</div>
     </tab-bar-item>
-    <tab-bar-item path="/cart">
+    <tab-bar-item path="/cart" :activeColor="'var(--color-high-text)'">
       <img src="~assets/img/tabbar/shopcart.svg" alt="" slot="item-icon" />
       <img
         src="~assets/img/tabbar/shopcart_active.svg"
@@ -27,7 +27,7 @@
       />
       <div slot="item-text">购物车</div>
     </tab-bar-item>
-    <tab-bar-item path="/me">
+    <tab-bar-item path="/me" :activeColor="'var(--color-high-text)'">
       <img src="~assets/img/tabbar/profile.svg" alt="" slot="item-icon" />
       <img
         src="~assets/img/tabbar/profile_active.svg"
