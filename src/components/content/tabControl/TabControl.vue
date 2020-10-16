@@ -3,7 +3,8 @@
     <!-- 这个组件很多地方就只是文字不一样，没必要用插槽，v-for props就可以了 -->
     <div v-for="(item, index) in titles" 
         :key="item" 
-        class="tab-control-item" :class="{active: index === currentIndex}">
+        class="tab-control-item" :class="{active: index === currentIndex}" 
+        @click="itemClick(index)">
       <span>{{item}}</span>
     </div>
   </div>
@@ -27,6 +28,11 @@
       return {
         currentIndex: 0
       }
+    },
+    methods: {
+      itemClick(index) {
+        this.currentIndex = index;
+      }
     }
 
   }
@@ -39,8 +45,7 @@
   font-size: 15px;
   height: 40px;
   line-height: 40px;
-  position: sticky;
-  top: 44px;
+  background-color: #fff;
 }
 
 .tab-control-item {
