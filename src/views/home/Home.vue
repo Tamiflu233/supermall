@@ -8,6 +8,7 @@
       class="tab-control"
       :titles="['流行', '新款', '精选']"
     ></tab-control>
+    <goods-list :goods="goods['pop'].list"></goods-list>
     <ul>
       <li>哈哈</li>
       <li>哈哈</li>
@@ -70,8 +71,9 @@ import FeatureView from "./childComps/FeatureView";
 
 import NavBar from "components/common/navbar/NavBar";
 import TabControl from "components/content/tabControl/TabControl";
+import GoodsList from "components/content/goods/GoodsList";
 
-import { getHomeMultidata } from "network/home";
+import { getHomeMultidata, getHomeGoods } from "network/home";
 
 export default {
   name: "Home",
@@ -81,25 +83,49 @@ export default {
     RecommendView,
     FeatureView,
     TabControl,
+    GoodsList,
   },
   data() {
     return {
       banners: [],
       recommends: [],
+      goods: {
+        pop: { page: 0, list: [] },
+        new: { page: 0, list: [] },
+        sell: { page: 0, list: [] },
+      },
     };
   },
   computed: {},
   created() {
     // 组件创建完成后发送网络请求
     // 1.请求多个数据
-    getHomeMultidata().then((res) => {
-      console.log(res);
-      // 箭头函数的this取决于作用域链，而外层created的this就是组件
-      this.banners = res.data.banner.list;
-      this.recommends = res.data.recommend.list;
-    });
+    this.getHomeMultidata();
+
+    // 2. 请求商品数据
+    this.getHomeGoods("pop");
+    this.getHomeGoods("new");
+    this.getHomeGoods("sell");
   },
-  methods: {},
+  methods: {
+    getHomeMultidata() {
+      getHomeMultidata().then((res) => {
+        console.log(res);
+        // 箭头函数的this取决于作用域链，而外层created的this就是组件
+        this.banners = res.data.banner.list;
+        this.recommends = res.data.recommend.list;
+      });
+    },
+    getHomeGoods(type) {
+      const page = this.goods[type].page + 1;
+      getHomeGoods(type, page).then((res) => {
+        // console.log(res);
+        // es6 ...扩展运算符可以结构可迭代对象
+        this.goods[type].list.push(...res.data.list);
+        this.goods[type].page += 1;
+      });
+    },
+  },
 };
 </script>
 
