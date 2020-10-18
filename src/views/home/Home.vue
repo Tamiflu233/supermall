@@ -1,66 +1,17 @@
 <template>
   <div id="home">
     <nav-bar class="home-nav"><div slot="center">购物街</div></nav-bar>
-    <home-swiper :banners="banners"></home-swiper>
-    <recommend-view :recommends="recommends"></recommend-view>
-    <feature-view></feature-view>
-    <tab-control
-      class="tab-control"
-      :titles="['流行', '新款', '精选']"
-    ></tab-control>
-    <goods-list :goods="goods['pop'].list"></goods-list>
-    <ul>
-      <li>哈哈</li>
-      <li>哈哈</li>
-      <li>哈哈</li>
-      <li>哈哈</li>
-      <li>哈哈</li>
-      <li>哈哈</li>
-      <li>哈哈</li>
-      <li>哈哈</li>
-      <li>哈哈</li>
-      <li>哈哈</li>
-      <li>哈哈</li>
-      <li>哈哈</li>
-      <li>哈哈</li>
-      <li>哈哈</li>
-      <li>哈哈</li>
-      <li>哈哈</li>
-      <li>哈哈</li>
-      <li>哈哈</li>
-      <li>哈哈</li>
-      <li>哈哈</li>
-      <li>哈哈</li>
-      <li>哈哈</li>
-      <li>哈哈</li>
-      <li>哈哈</li>
-      <li>哈哈</li>
-      <li>哈哈</li>
-      <li>哈哈</li>
-      <li>哈哈</li>
-      <li>哈哈</li>
-      <li>哈哈</li>
-      <li>哈哈</li>
-      <li>哈哈</li>
-      <li>哈哈</li>
-      <li>哈哈</li>
-      <li>哈哈</li>
-      <li>哈哈</li>
-      <li>哈哈</li>
-      <li>哈哈</li>
-      <li>哈哈</li>
-      <li>哈哈</li>
-      <li>哈哈</li>
-      <li>哈哈</li>
-      <li>哈哈</li>
-      <li>哈哈</li>
-      <li>哈哈</li>
-      <li>哈哈</li>
-      <li>哈哈</li>
-      <li>哈哈</li>
-      <li>哈哈</li>
-      <li>哈哈</li>
-    </ul>
+    <scroll class="content">
+      <home-swiper :banners="banners"></home-swiper>
+      <recommend-view :recommends="recommends"></recommend-view>
+      <feature-view></feature-view>
+      <tab-control
+        class="tab-control"
+        :titles="['流行', '新款', '精选']"
+        @tabClick="tabClick"
+      ></tab-control>
+      <goods-list :goods="showGoods"></goods-list>
+    </scroll>
   </div>
 </template>
 
@@ -72,6 +23,7 @@ import FeatureView from "./childComps/FeatureView";
 import NavBar from "components/common/navbar/NavBar";
 import TabControl from "components/content/tabControl/TabControl";
 import GoodsList from "components/content/goods/GoodsList";
+import Scroll from "components/common/scroll/Scroll";
 
 import { getHomeMultidata, getHomeGoods } from "network/home";
 
@@ -84,6 +36,7 @@ export default {
     FeatureView,
     TabControl,
     GoodsList,
+    Scroll,
   },
   data() {
     return {
@@ -94,6 +47,7 @@ export default {
         new: { page: 0, list: [] },
         sell: { page: 0, list: [] },
       },
+      currentType: "pop",
     };
   },
   computed: {},
@@ -108,6 +62,27 @@ export default {
     this.getHomeGoods("sell");
   },
   methods: {
+    /* 
+      事件监听相关的方法
+    */
+    tabClick(index) {
+      //  console.log(index);
+      switch (index) {
+        case 0:
+          this.currentType = "pop";
+          break;
+        case 1:
+          this.currentType = "new";
+          break;
+        case 2:
+          this.currentType = "sell";
+          break;
+      }
+    },
+
+    /* 
+      网络请求相关的方法
+    */
     getHomeMultidata() {
       getHomeMultidata().then((res) => {
         console.log(res);
@@ -126,12 +101,21 @@ export default {
       });
     },
   },
+  computed: {
+    showGoods() {
+      return this.goods[this.currentType].list;
+    },
+  },
 };
 </script>
 
 <style scoped>
 #home {
+  /* 之前为了让主页面不会被nav-bar盖住加了padding-top,但为了保证content部分的计算高度能到100% - navbar - tabbar */
+  /* 得去掉，然后在content加上margin-top来代替 */
   padding-top: 44px;
+  height: 100vh;
+  position: relative;
 }
 .home-nav {
   background-color: var(--color-tint);
@@ -148,4 +132,21 @@ export default {
   position: sticky;
   top: 43px;
 }
+/* 方案二： 利用绝对定位设置top和bottom然后height默认auto自动调整 */
+.content {
+  /* height: 300px; */
+  overflow: hidden;
+  position: absolute;
+  top: 44px;
+  bottom: 49px;
+  left: 0;
+  right: 0;
+}
+
+/* 方案一 calc动态计算滚动部分的高度 */
+/* .content {
+  margin-top: 44px;
+  height: calc(100% - 93px);
+  overflow: hidden;
+} */
 </style>

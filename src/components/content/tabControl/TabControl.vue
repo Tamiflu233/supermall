@@ -1,41 +1,42 @@
 <template>
   <div class="tab-control">
     <!-- 这个组件很多地方就只是文字不一样，没必要用插槽，v-for props就可以了 -->
-    <div v-for="(item, index) in titles" 
-        :key="item" 
-        class="tab-control-item" :class="{active: index === currentIndex}" 
-        @click="itemClick(index)">
-      <span>{{item}}</span>
+    <div
+      v-for="(item, index) in titles"
+      :key="item"
+      class="tab-control-item"
+      :class="{ active: index === currentIndex }"
+      @click="itemClick(index)"
+    >
+      <span>{{ item }}</span>
     </div>
   </div>
 </template>
 
 <script>
-  export default {
-    name: "TabControl",
-    components:{
-      
+export default {
+  name: "TabControl",
+  components: {},
+  props: {
+    titles: {
+      type: Array,
+      default() {
+        return [];
+      },
     },
-    props: {
-      titles: {
-        type:Array,
-        default() {
-          return []
-        }
-      }
+  },
+  data() {
+    return {
+      currentIndex: 0,
+    };
+  },
+  methods: {
+    itemClick(index) {
+      this.currentIndex = index;
+      this.$emit("tabClick", index);
     },
-    data() {
-      return {
-        currentIndex: 0
-      }
-    },
-    methods: {
-      itemClick(index) {
-        this.currentIndex = index;
-      }
-    }
-
-  }
+  },
+};
 </script>
 
 <style scoped>
@@ -46,20 +47,19 @@
   height: 40px;
   line-height: 40px;
   background-color: #fff;
-  z-index: 999;
+  z-index: 800;
 }
 
 .tab-control-item {
   flex: 1;
 }
 
-.tab-control-item span{
+.tab-control-item span {
   padding: 5px;
 }
 
 .active {
-  color:  var(--color-high-text);
-  
+  color: var(--color-high-text);
 }
 
 .active span {
