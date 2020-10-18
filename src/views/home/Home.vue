@@ -1,7 +1,14 @@
 <template>
   <div id="home">
     <nav-bar class="home-nav"><div slot="center">购物街</div></nav-bar>
-    <scroll class="content">
+    <scroll
+      class="content"
+      ref="scroll"
+      :probe-type="3"
+      :pull-up-load="true"
+      @scroll="contentScroll"
+      @pullingUp="loadMore"
+    >
       <home-swiper :banners="banners"></home-swiper>
       <recommend-view :recommends="recommends"></recommend-view>
       <feature-view></feature-view>
@@ -12,6 +19,8 @@
       ></tab-control>
       <goods-list :goods="showGoods"></goods-list>
     </scroll>
+    <!-- .native修饰符可以让组件能使用原生的监听事件(不加就用不了) -->
+    <back-top @click.native="backClick" v-show="isShowBackTop"></back-top>
   </div>
 </template>
 
@@ -24,6 +33,7 @@ import NavBar from "components/common/navbar/NavBar";
 import TabControl from "components/content/tabControl/TabControl";
 import GoodsList from "components/content/goods/GoodsList";
 import Scroll from "components/common/scroll/Scroll";
+import BackTop from "components/content/backTop/BackTop";
 
 import { getHomeMultidata, getHomeGoods } from "network/home";
 
@@ -37,6 +47,7 @@ export default {
     TabControl,
     GoodsList,
     Scroll,
+    BackTop,
   },
   data() {
     return {
@@ -48,9 +59,9 @@ export default {
         sell: { page: 0, list: [] },
       },
       currentType: "pop",
+      isShowBackTop: false
     };
   },
-  computed: {},
   created() {
     // 组件创建完成后发送网络请求
     // 1.请求多个数据
@@ -79,7 +90,16 @@ export default {
           break;
       }
     },
-
+    backClick() {
+      this.$refs.scroll.scrollTo(0, 0);
+    },
+    contentScroll(position) {
+      // console.log(position);
+      this.isShowBackTop = Math.abs(position.y) > 1000
+    },
+    loadMore() {
+      this.getHomeGoods(this.currentType)
+    },
     /* 
       网络请求相关的方法
     */
@@ -98,6 +118,8 @@ export default {
         // es6 ...扩展运算符可以结构可迭代对象
         this.goods[type].list.push(...res.data.list);
         this.goods[type].page += 1;
+        // 加载完数据结束better-scroll的pullup事件以便再次触发
+        this.$refs.scroll.finishPullUp()
       });
     },
   },
