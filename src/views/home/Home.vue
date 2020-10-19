@@ -1,6 +1,13 @@
 <template>
   <div id="home">
     <nav-bar class="home-nav"><div slot="center">购物街</div></nav-bar>
+    <tab-control
+      :titles="['流行', '新款', '精选']"
+      @tabClick="tabClick"
+      ref="tabControl1"
+      class="tab-control"
+      v-show="isTabFixed"
+    ></tab-control>
     <scroll
       class="content"
       ref="scroll"
@@ -18,7 +25,7 @@
       <tab-control
         :titles="['流行', '新款', '精选']"
         @tabClick="tabClick"
-        ref="tabControl"
+        ref="tabControl2"
       ></tab-control>
       <goods-list :goods="showGoods"></goods-list>
     </scroll>
@@ -65,6 +72,7 @@ export default {
       currentType: "pop",
       isShowBackTop: false,
       tabOffsetTop: 0,
+      isTabFixed: false,
     };
   },
   created() {
@@ -107,19 +115,26 @@ export default {
           this.currentType = "sell";
           break;
       }
+      /* 同步俩tabbar的选中项(为了实现fixed干脆用俩tabbar，前者等滚动到offsetHeight才显示) */
+      this.$refs.tabControl1.currentIndex = index;
+      this.$refs.tabControl2.currentIndex = index;
     },
     backClick() {
       this.$refs.scroll.scrollTo(0, 0);
     },
     contentScroll(position) {
-      // console.log(position);
+      // 1.判断BackTop是否显示
       this.isShowBackTop = Math.abs(position.y) > 1000;
+
+      // 2.决定tabControl是否吸顶(position: fixed)
+      this.isTabFixed = -position.y > this.tabOffsetTop;
     },
     loadMore() {
       this.getHomeGoods(this.currentType);
     },
     swiperImageLoad() {
-      this.tabOffsetTop = this.$refs.tabControl.$el.offsetTop;
+      // 加载完轮播图后，获取tabControl的offsetTop(精确值)
+      this.tabOffsetTop = this.$refs.tabControl2.$el.offsetTop;
     },
     /* 
       网络请求相关的方法
@@ -156,18 +171,21 @@ export default {
 #home {
   /* 之前为了让主页面不会被nav-bar盖住加了padding-top,但为了保证content部分的计算高度能到100% - navbar - tabbar */
   /* 得去掉，然后在content加上margin-top来代替 */
-  padding-top: 44px;
+  /* padding-top: 44px; */
   height: 100vh;
   position: relative;
 }
 .home-nav {
   background-color: var(--color-tint);
   color: #fff;
-  position: fixed;
+  /* 用了better-scroll局部滚动了，所以nav-bar不会被滚掉，就没必要fixed了
+    如果用浏览器原生滚动就要用position: fixed了
+   */
+  /* position: fixed;
   left: 0;
   right: 0;
   top: 0;
-  z-index: 999;
+  z-index: 999; */
 }
 
 /* 方案二： 利用绝对定位设置top和bottom然后height默认auto自动调整 */
@@ -181,6 +199,22 @@ export default {
   right: 0;
 }
 
+.tab-control {
+  position: relative;
+  top: -1px;  /* 感觉和nav-bar之间有条缝，调整一下 */
+  z-index: 999;
+}
+
+/* .fixed {
+   会发现没有吸顶，反而消失了，原因是better-scroll内部其实是修改transform: translate
+    这个平移样式会把fixed的tabControl也会平移到上面去
+   
+  position: fixed;
+  left: 0;
+  right: 0;
+  top: 44px;
+}
+ */
 /* 方案一 calc动态计算滚动部分的高度 */
 /* .content {
   margin-top: 44px;
