@@ -15,12 +15,12 @@ export default {
   props: {
     probeType: {
       type: Number,
-      default: 0
+      default: 0,
     },
     pullUpLoad: {
       type: Boolean,
-      default: false
-    }
+      default: false,
+    },
   },
   data() {
     return {
@@ -36,35 +36,44 @@ export default {
       // 如果不允许click事件的传递，那可滚动区域里面所有的点击跳转全部失效
       click: true,
       probeType: this.probeType,
-      pullUpLoad: this.pullUpLoad
+      pullUpLoad: this.pullUpLoad,
     });
     // 挂载完不代表商品列表加载完
     // this.scroll.refresh();
 
     // 2.监听滚动位置
-    this.scroll.on("scroll", position => {
-      // console.log(position);
-      this.$emit('scroll',position)
-    })
+    if (this.probeType === 2 || this.probeType === 3) {
+      this.scroll.on("scroll", (position) => {
+        this.$emit("scroll", position);
+      });
+    }
 
-    // 3. 监听上拉事件
-    this.scroll.on('pullingUp', () => {
-      this.$emit('pullingUp')
-    })
-
+    // 3. 监听scroll滚动到底不
+    if (this.pullUpLoad) {
+      this.scroll.on("pullingUp", () => {
+        this.$emit("pullingUp");
+      });
+    }
   },
   updated() {
     // 首页中商品列表是实时更新的，这就导致scroll的滚动距离需要实时更新，所以在updated生命周期用refresh方法重新计算滚动距离
-    this.scroll.refresh()
+    this.scroll.refresh();
+    // 我们在GoodsListItem向event bus发送加载好的事件并在home接收，然后回调执行refresh来重新计算滚动区域
+    // 所以这里就不需要updated里面refresh了X
+    // 还是加一下，亲测如果切换页面再切回来，由于混动区域要重新加载，此时一开始不refresh会有点卡顿
   },
   methods: {
-    scrollTo(x, y, time=300) {
-      this.scroll.scrollTo(x,y,time)
+    // 确保scroll对象存在才允许调用
+    scrollTo(x, y, time = 300) {
+      this.scroll && this.scroll.scrollTo(x, y, time);
     },
     finishPullUp() {
-      this.scroll.finishPullUp()
-    }
-  }
+      this.scroll && this.scroll.finishPullUp();
+    },
+    refresh() {
+      this.scroll && this.scroll.refresh();
+    },
+  },
 };
 </script>
 

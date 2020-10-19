@@ -9,13 +9,16 @@
       @scroll="contentScroll"
       @pullingUp="loadMore"
     >
-      <home-swiper :banners="banners"></home-swiper>
+      <home-swiper
+        :banners="banners"
+        @swiperImageLoad="swiperImageLoad"
+      ></home-swiper>
       <recommend-view :recommends="recommends"></recommend-view>
       <feature-view></feature-view>
       <tab-control
-        class="tab-control"
         :titles="['流行', '新款', '精选']"
         @tabClick="tabClick"
+        ref="tabControl"
       ></tab-control>
       <goods-list :goods="showGoods"></goods-list>
     </scroll>
@@ -37,6 +40,7 @@ import BackTop from "components/content/backTop/BackTop";
 
 import { getHomeMultidata, getHomeGoods } from "network/home";
 
+import { debounce } from "common/utils.js";
 export default {
   name: "Home",
   components: {
@@ -59,7 +63,8 @@ export default {
         sell: { page: 0, list: [] },
       },
       currentType: "pop",
-      isShowBackTop: false
+      isShowBackTop: false,
+      tabOffsetTop: 0,
     };
   },
   created() {
@@ -72,10 +77,23 @@ export default {
     this.getHomeGoods("new");
     this.getHomeGoods("sell");
   },
+  mounted() {
+    // 1. 图片加载完成的事件监听
+    const refresh = debounce(this.$refs.scroll.refresh, 500);
+    this.$bus.$on("itemImageLoad", () => {
+      refresh(); //闭包不会销毁refresh
+    });
+    // 2.获取tabControl的offsetTop
+    // 自定义组件没有一般dom的offsetTop属性，但是都有$el属性,用于获取组件中的元素
+    // 然后放在mounted得到的结果不对，因为挂载完，网速不好的话图片还没加载好，这个时候会获得错误的值
+    /* this.tabOffsetTop = this.$refs.tabControl.$el.offsetTop
+    console.log(this.tabOffsetTop); */
+  },
   methods: {
     /* 
       事件监听相关的方法
     */
+    //  防抖函数(处理图片加载事件的高频响应)
     tabClick(index) {
       //  console.log(index);
       switch (index) {
@@ -95,10 +113,13 @@ export default {
     },
     contentScroll(position) {
       // console.log(position);
-      this.isShowBackTop = Math.abs(position.y) > 1000
+      this.isShowBackTop = Math.abs(position.y) > 1000;
     },
     loadMore() {
-      this.getHomeGoods(this.currentType)
+      this.getHomeGoods(this.currentType);
+    },
+    swiperImageLoad() {
+      this.tabOffsetTop = this.$refs.tabControl.$el.offsetTop;
     },
     /* 
       网络请求相关的方法
@@ -119,7 +140,7 @@ export default {
         this.goods[type].list.push(...res.data.list);
         this.goods[type].page += 1;
         // 加载完数据结束better-scroll的pullup事件以便再次触发
-        this.$refs.scroll.finishPullUp()
+        this.$refs.scroll.finishPullUp();
       });
     },
   },
@@ -149,11 +170,6 @@ export default {
   z-index: 999;
 }
 
-.tab-control {
-  /* 粘滞定位兼容性不好，少用,移动端倒无所谓 */
-  position: sticky;
-  top: 43px;
-}
 /* 方案二： 利用绝对定位设置top和bottom然后height默认auto自动调整 */
 .content {
   /* height: 300px; */
