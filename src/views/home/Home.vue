@@ -73,6 +73,7 @@ export default {
       isShowBackTop: false,
       tabOffsetTop: 0,
       isTabFixed: false,
+      saveY: 0, //保存首页的当前位置信息
     };
   },
   created() {
@@ -164,6 +165,16 @@ export default {
       return this.goods[this.currentType].list;
     },
   },
+  activated() {
+    // 进入路由(使用keep-alive才会有这个)
+    this.$refs.scroll.refresh();
+    this.$refs.scroll.scrollTo(0, this.saveY, 0);
+  },
+  deactivated() {
+    // 离开路由(使用keep-alive才会有这个)
+    // console.log(this.saveY);
+    this.saveY = this.$refs.scroll.getScrollY();
+  },
 };
 </script>
 
@@ -201,7 +212,6 @@ export default {
 
 .tab-control {
   position: relative;
-  top: -1px;  /* 感觉和nav-bar之间有条缝，调整一下 */
   z-index: 999;
 }
 

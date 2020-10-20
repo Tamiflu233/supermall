@@ -1,5 +1,5 @@
 <template>
-  <div class="goods-item">
+  <div class="goods-item" @click="itemClick">
     <img :src="goodsItem.show.img" alt="" @load="imageLoad" />
     <div class="goods-info">
       <p>
@@ -29,6 +29,9 @@ export default {
       // $bus是一个Vue实例
       this.$bus.$emit("itemImageLoad");
     },
+    itemClick() {
+      this.$router.push("/detail/" + this.goodsItem.iid)
+    }
   },
 };
 </script>
