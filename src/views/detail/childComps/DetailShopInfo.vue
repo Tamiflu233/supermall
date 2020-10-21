@@ -37,6 +37,7 @@
       <div class="enter-shop">进店逛逛</div>
     </div>
   </div>
+  
 </template>
 
 <script>
