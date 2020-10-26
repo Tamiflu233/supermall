@@ -1,6 +1,6 @@
 <template>
   <div class="goods-item" @click="itemClick">
-    <img :src="goodsItem.show.img" alt="" @load="imageLoad" />
+    <img :src="showImage" alt="" @load="imageLoad" />
     <div class="goods-info">
       <p>
         {{ goodsItem.title }}
@@ -21,6 +21,13 @@ export default {
         return {};
       },
     },
+  },
+  computed: {
+    showImage() {
+      /* recommends的图片和goods的图片在不一样的属性里 */
+      return this.goodsItem.image || this.goodsItem.show.img 
+    },
+    
   },
   methods: {
     imageLoad() {

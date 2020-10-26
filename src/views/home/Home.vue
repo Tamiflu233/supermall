@@ -47,7 +47,8 @@ import BackTop from "components/content/backTop/BackTop";
 
 import { getHomeMultidata, getHomeGoods } from "network/home";
 
-import { debounce } from "common/utils.js";
+// import { debounce } from "common/utils.js";
+import {itemListenerMixin} from 'common/mixin';
 export default {
   name: "Home",
   components: {
@@ -60,6 +61,7 @@ export default {
     Scroll,
     BackTop,
   },
+  mixins: [itemListenerMixin],
   data() {
     return {
       banners: [],
@@ -87,16 +89,7 @@ export default {
     this.getHomeGoods("sell");
   },
   mounted() {
-    // 1. 图片加载完成的事件监听
-    const refresh = debounce(this.$refs.scroll.refresh, 500);
-    this.$bus.$on("itemImageLoad", () => {
-      refresh(); //闭包不会销毁refresh
-    });
-    // 2.获取tabControl的offsetTop
-    // 自定义组件没有一般dom的offsetTop属性，但是都有$el属性,用于获取组件中的元素
-    // 然后放在mounted得到的结果不对，因为挂载完，网速不好的话图片还没加载好，这个时候会获得错误的值
-    /* this.tabOffsetTop = this.$refs.tabControl.$el.offsetTop
-    console.log(this.tabOffsetTop); */
+    
   },
   methods: {
     /* 
@@ -173,7 +166,11 @@ export default {
   deactivated() {
     // 离开路由(使用keep-alive才会有这个)
     // console.log(this.saveY);
+    // 1. 保存y值
     this.saveY = this.$refs.scroll.getScrollY();
+
+    // 2.取消全局事件监听(对事件总线上itemImageLoad的监听)
+    this.$bus.$off('itemImageLoad', this.itemImgListener)
   },
 };
 </script>
