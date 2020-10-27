@@ -62,6 +62,7 @@
 
 .param-value {
   color: #eb4868;
+  line-height: 25px;
 }
 
 .info-img img {

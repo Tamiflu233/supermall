@@ -33,16 +33,18 @@ export default {
   },
   data() {
     return {
-      counter: 0,
+      // counter: 0,
       imagesLength: 0,
     };
   },
   methods: {
     imgLoad() {
       // 等全部图片都加载完才发送事件(避免频繁发射事件)
-      if (++this.counter === this.imagesLength) {
-        this.$emit("imageLoad");
-      }
+      /* if (++this.counter === this.imagesLength) {
+        this.$emit("detailImageLoad");
+      } */
+      // 干脆用防抖了，就不用特地算最后一个图片了(防抖相对更好点，等最后一张加载完才发事件感觉图片多了还是会卡)
+      this.$emit("detailImageLoad");
     },
   },
   watch: {
