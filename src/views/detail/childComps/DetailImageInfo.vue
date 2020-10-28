@@ -116,6 +116,5 @@ export default {
 
 .info-list img {
   width: 100%;
-  vertical-align: top;
 }
 </style>

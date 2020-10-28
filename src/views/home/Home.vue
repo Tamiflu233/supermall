@@ -43,12 +43,13 @@ import NavBar from "components/common/navbar/NavBar";
 import TabControl from "components/content/tabControl/TabControl";
 import GoodsList from "components/content/goods/GoodsList";
 import Scroll from "components/common/scroll/Scroll";
-import BackTop from "components/content/backTop/BackTop";
-
+// BackTop在mixin里面注册过了，所以可以直接用
 import { getHomeMultidata, getHomeGoods } from "network/home";
 
 // import { debounce } from "common/utils.js";
-import {itemListenerMixin} from 'common/mixin';
+import {itemListenerMixin, backTopMixin} from 'common/mixin';
+
+
 export default {
   name: "Home",
   components: {
@@ -59,9 +60,9 @@ export default {
     TabControl,
     GoodsList,
     Scroll,
-    BackTop,
+
   },
-  mixins: [itemListenerMixin],
+  mixins: [itemListenerMixin, backTopMixin],  //滚动区域监听刷新与回到顶部按钮的mixin
   data() {
     return {
       banners: [],
@@ -72,7 +73,6 @@ export default {
         sell: { page: 0, list: [] },
       },
       currentType: "pop",
-      isShowBackTop: false,
       tabOffsetTop: 0,
       isTabFixed: false,
       saveY: 0, //保存首页的当前位置信息
@@ -113,12 +113,9 @@ export default {
       this.$refs.tabControl1.currentIndex = index;
       this.$refs.tabControl2.currentIndex = index;
     },
-    backClick() {
-      this.$refs.scroll.scrollTo(0, 0);
-    },
     contentScroll(position) {
       // 1.判断BackTop是否显示
-      this.isShowBackTop = Math.abs(position.y) > 1000;
+      this.listenShowBackTop(position);
 
       // 2.决定tabControl是否吸顶(position: fixed)
       this.isTabFixed = -position.y > this.tabOffsetTop;

@@ -1,4 +1,7 @@
 import {debounce} from './utils';
+import BackTop from "components/content/backTop/BackTop";
+import {BACK_POSITION} from 'common/const';
+// 滚动区域高度刷新(防抖处理)
 export const itemListenerMixin = {
   data() {
     return {
@@ -17,5 +20,25 @@ export const itemListenerMixin = {
 
     this.$bus.$on('itemImageLoad', this.itemImgListener)
     // console.log('我是混入的内容');
+  },
+}
+
+// 回到顶部按钮的mixin封装
+export const backTopMixin = {
+  components:{
+    BackTop
+  },
+  data() {
+    return {
+      isShowBackTop: false,
+    }
+  },
+  methods: {
+    backClick() {
+      this.$refs.scroll.scrollTo(0, 0);
+    },
+    listenShowBackTop(position) {
+      this.isShowBackTop = Math.abs(position.y) > BACK_POSITION;
+    }
   },
 }
