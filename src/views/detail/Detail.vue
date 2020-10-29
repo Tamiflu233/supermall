@@ -262,5 +262,6 @@ export default {
 
 .content {
   height: calc(100% - 44px - 58px);
+  overflow: hidden;
 }
 </style>
