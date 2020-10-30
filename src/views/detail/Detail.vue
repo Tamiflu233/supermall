@@ -30,6 +30,7 @@
     </scroll>
     <detail-bottom-bar @addCart="addToCart"></detail-bottom-bar>
     <back-top @click.native="backClick" v-show="isShowBackTop"></back-top>
+
   </div>
 </template>
 
@@ -45,9 +46,10 @@ import DetailBottomBar from "./childComps/DetailBottomBar";
 
 import Scroll from "components/common/scroll/Scroll";
 import GoodsList from "components/content/goods/GoodsList";
+// import Toast from 'components/common/toast/Toast';
+
 // BackTop在mixin里面注册过了，所以可以直接用
 import { debounce } from "common/utils";
-
 import {
   getDetail,
   getRecommend,
@@ -57,6 +59,7 @@ import {
 } from "network/detail";
 // import {debounce} from 'common/utils.js';
 import { itemListenerMixin, backTopMixin } from "common/mixin.js";
+import {mapActions} from 'vuex';
 
 export default {
   name: "Detail",
@@ -74,6 +77,8 @@ export default {
       themeTopYs: [],
       getThemeTopY: null, //防抖处理的获取每个主题的offsetTop函数
       currentIndex: 0,
+      // message: '',
+      // show: false
     };
   },
   components: {
@@ -87,6 +92,7 @@ export default {
     DetailBottomBar,
     Scroll,
     GoodsList,
+    // Toast
   },
   created() {
     // 1.保存传入的iid
@@ -188,6 +194,7 @@ export default {
     this.$bus.$off("itemImageLoad", this.itemImgListener);
   },
   methods: {
+    ...mapActions(['addCart']),
     detailImageLoad() {
       this.newRefresh(); //mixin里面干脆把防抖函数存到了data里面,mixin进来后直接用
       this.getThemeTopY();
@@ -239,8 +246,26 @@ export default {
       product.price = this.goods.realPrice;
       product.iid = this.iid;
 
-      // 2.将商品添加到购物车里
-      this.$store.dispatch('addCart', product)
+      // 2.将商品添加到购物车里(1.Promise 2.mapActions)
+      // 直接用mapActions映射到的addCart(内部会调用this.$store.dispatch('addCart', product))
+      this.addCart(product).then(res => {
+        // this.show = true;
+        // this.message = res;
+        // setTimeout(() => {
+        //   this.show = false;
+        //   this.message = '';
+        // }, 1500);
+        console.log(this.$toast);
+        this.$toast.show(res, 1500)
+        
+      })
+      /* this.$store.dispatch('addCart', product).then(res => {
+        // 3.添加到购物车成功
+        console.log(res);
+      }) */
+
+      
+      
     },
   },
 };

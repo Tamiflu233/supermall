@@ -1,7 +1,11 @@
 <template>
   <div class="bottom-bar">
     <div class="check-content">
-      <check-button class="check-button"></check-button>
+      <check-button 
+        class="check-button" 
+        :is-checked="isSelectAll"
+        @click.native="checkClick">
+      </check-button>
       <span>全选</span>
     </div>
 
@@ -9,7 +13,7 @@
       合计: {{ totalPrice }}
     </div>
 
-    <div class="calculate">
+    <div class="calculate" @click="calcClick">
       去计算({{checkLength}})
     </div>
   </div>
@@ -25,7 +29,7 @@ export default {
     CheckButton,
   },
   computed: {
-    ...mapGetters(['cartList']),
+    ...mapGetters(['cartLength','cartList']),
     totalPrice() {
       return (
         "￥" +
@@ -40,8 +44,31 @@ export default {
     },
     checkLength() {
       return this.cartList.filter(item => item.checked).length
+    },
+    isSelectAll() {
+      if (this.cartList.length === 0) return false
+      // return !(this.cartList.filter(item => !item.checked).length)
+      return !this.cartList.find(item => !item.checked)
     }
   },
+  methods: {
+    checkClick() {
+      if(this.isSelectAll) { // 全部选中
+        this.cartList.forEach(item => item.checked = false)
+      }else {
+        this.cartList.forEach(item => item.checked = true)
+      }
+
+      // 不可以这么简化代码,因为isSelectAll计算属性也要通过checked计算，他们会相互影响，导致错误
+      /* this.cartList.forEach(item => item.checked = !this.isSelectAll) */
+      
+    },
+    calcClick() {
+      if(!this.checkLength) {
+        this.$toast.show('请选择购买的商品', 2000)
+      }
+    }
+  }
 };
 </script>
 
@@ -80,4 +107,6 @@ export default {
   color: #fff;
   text-align: center;
 }
+
+
 </style>
