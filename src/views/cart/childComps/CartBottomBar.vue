@@ -88,9 +88,14 @@ export default {
   width: 60px;
 }
 
+.check-content span {
+  font-size: 16px;
+}
+
 .check-button {
   width: 20px;
   height: 20px;
+  text-align: center;
   /* line-height若继承了.bottom-bar的40px,checkbutton的img由于是行内元素会被影响，往下拉，所以此处要覆盖掉,改为20px */
   line-height: 20px;
   margin-right: 5px;
