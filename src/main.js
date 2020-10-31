@@ -21,6 +21,7 @@ FastClick.attach(document.body)
 
 // 使用图片懒加载插件
 Vue.use(VueLazyLoad, {
+  // 加载中的占位图片需要用require()导入
   loading: require('./assets/img/common/placeholder.png')
 })
 
