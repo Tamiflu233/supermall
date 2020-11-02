@@ -10,8 +10,6 @@ export function request(config) {
 
   // 2.axios拦截器
   instance.interceptors.request.use(config => {
-    // console.log(config);
-
     return config //必须返回，不然组件里request的时候then里面拿不到，就会去err报错
   }, err => {
     // console.log(err);
