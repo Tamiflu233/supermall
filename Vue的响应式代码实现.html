@@ -1,10 +1,12 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Document</title>
 </head>
+
 <body>
   <div id="app">
     <input type="text" v-model="message">
@@ -29,6 +31,19 @@
 
         // 4.处理el
         new Compiler(this.$el, this)
+      }
+
+      _proxy(key) {
+        Object.defineProperty(this, key, {
+          configurable: true,
+          enumerable: true,
+          set(newValue) {
+            this.$data[key] = newValue
+          },
+          get() {
+            return this.$data[key]
+          }
+        })
       }
     }
 
@@ -90,7 +105,7 @@
       }
 
       update() {
-        this.node.nodeValue = this.vm[this.name]
+        this.node.nodeValue = this.vm[this.name]  //调用get
       }
     }
 
@@ -108,7 +123,7 @@
         const frag = document.createDocumentFragment()
 
         let child;
-        while(child = this.el.firstChild) {
+        while (child = this.el.firstChild) {
           this._compile(child)  // <h2>{{message}}</h2>
           frag.appendChild(child)
         }
@@ -119,7 +134,7 @@
       _compile(node) {
         if (node.nodeType === 1) {  //元素（标签）结点
           const attrs = node.attributes
-          if(attrs.hasOwnProperty('v-model')) {
+          if (attrs.hasOwnProperty('v-model')) {
             const name = attrs['v-model'].nodeValue;
             node.addEventListener('input', e => {
               this.vm[name] = e.target.value;
@@ -151,4 +166,5 @@
     })
   </script>
 </body>
+
 </html>
